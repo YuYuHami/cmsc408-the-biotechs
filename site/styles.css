@@ -1,0 +1,151 @@
+.bg {
+    background:#1e1e1e;
+    padding:20px;
+    text-align: center;
+}
+
+.header {
+    color: rgb(192, 242, 223);
+    font-family: Candara;
+    font-style: bold;
+    font-size:25; 
+    text-align: center; 
+}
+
+.maintext {
+    color: rgb(192, 242, 223);
+}
+
+.ulsplit {
+    column-count: 3;
+    column-gap: 10px;
+    padding: 20px;
+}
+
+.list {
+    display: inline-block; 
+    text-align: left; 
+    list-style-type: disclosure-closed; 
+    font-size: 24px;
+}
+
+.smallerlist {
+    display: inline-block;
+    text-align: left; 
+    list-style-type: disclosure-closed; 
+    font-size: 15px;
+    padding: 10px;
+    color: rgb(192, 242, 223);
+}
+
+.smallerlist:hover {
+    color: white;
+}
+
+
+.link:link {
+    color: rgb(112, 198, 165);
+}
+
+.link:visited {
+    color: rgb(112, 198, 165);
+}
+
+.link:hover {
+    color: white;
+}
+
+details {
+    color: rgb(112, 198, 165);
+}
+
+summary:hover {
+    color: white;
+}
+
+code {
+    font-family: Consolas, "courier new";
+    color: black;
+    background-color: rgb(236, 255, 248);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 5px 5px rgb(112, 198, 165);
+    display: inline-block;
+    max-width: 1000;
+}
+
+.tableheader {
+    background-color: rgb(192, 242, 223) !important;
+    border-color: rgb(112, 198, 165);
+}
+
+.table {
+    border-radius: 10px;
+}
+
+table.table { 
+    width: auto; 
+}
+
+.table tbody td {
+    background-color: rgb(236, 255, 248);
+    border-color: rgb(112, 198, 165);
+}
+
+.btn-list {
+    background-color: rgb(192, 242, 223);
+    font-style: bold;
+    color: #1e1e1e;
+    border-color: rgb(192, 242, 223);
+}
+
+.btn-list:hover {
+    background-color: rgb(36, 169, 118);
+    font-style: bold;
+    color: white;
+    border-color: rgb(36, 169, 118);
+}
+
+.btn-update {
+    background-color: rgb(192, 242, 223);
+    font-style: bold;
+    color: #1e1e1e;
+    border-color: rgb(112, 198, 165);
+    box-shadow: 2px 2px 2px rgb(112, 198, 165);
+}
+
+.btn-update:hover {
+    background-color: rgb(36, 169, 118);;
+    font-style: bold;
+    color: white;
+    border-color: transparent;
+    box-shadow: 2px 2px 2px rgb(36, 169, 118);;
+}
+
+.btn-delete {
+    background-color: rgb(192, 242, 223);
+    font-style: bold;
+    color: #1e1e1e;
+    border-color: rgb(112, 198, 165);
+    box-shadow: 2px 2px 2px rgb(112, 198, 165);
+}
+
+.btn-delete:hover {
+    background-color: #b85b33;
+    font-style: bold;
+    color: white;
+    border-color: transparent;
+    box-shadow: 2px 2px 2px #b85b33;
+}
+
+.formlabel {
+    color:#404443 !important;
+}
+
+.form-floating > label::after {
+    background-color: transparent !important;
+}
+
+.formbg {
+    background-color:rgb(236, 255, 248);
+}

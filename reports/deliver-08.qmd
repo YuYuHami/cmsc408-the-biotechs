@@ -1,0 +1,558 @@
+---
+title: CMSC 408/591 - Bioinformatics Tool Database Project 
+author:
+    - name: Mariam Topchyan, Yousra Hamidou, Danielle Coates
+
+format:
+    html:
+        embed-resources: true
+        html-math-method: katex
+        theme: journal
+        toc: true
+---
+
+# Project overview and key deliverables 
+
+Bioinformatics tools are essential for effectively managing and analyzing biological data, especially with massive data volumes yielded by current technological advancements such as NGS. Among the many tools that now exist, it can be challenging to find a fitting tool for your own research purposes. This project aims to create a database that would compile information about existing bioinformatics tools from many different categories (with information including their use cases, associated repositories, documentation, and official journal publications), to make it easier to filter and browse tools in search of those that would best suit your needs.
+
+* <a href=https://vcu.mediaspace.kaltura.com/media/Deliverable%205%20-%20Topic%20Proposal%3A%20Database%20of%20Bioinformatics%20Tools/1_a0vnva4j>Pitch video</a>
+
+* <a href=https://vcu.mediaspace.kaltura.com/media/Deliverable%208%20-%20Database%20Design/1_merrm6pk>Design video</a>
+
+* <a href=https://github.com/cmsc-vcu/cmsc408-fa2024-proj-the-biotechs>Github repository</a> 
+
+# Problem Description
+
+## Problem domain
+
+Our problem domain is focused on Bioinformatics, a field that integrates biology, computer science, and data analysis to process and interpret complex biological data. In the past few years we’ve witnessed a rapid growth in bioinformatics tools and softwares. Researchers and scientists often struggle to find the appropriate tools for specific analyses (ex. Gene finding, sequence alignment and statistical analysis of biological data). As of now, tools are scattered across multiple websites, publications and even repositories, making it difficult to track updates, capabilities and documentation. This database will consolidate information on bioinformatics tools (including their use cases, programming languages, interfaces, and even associate publications if available), thus providing centralized resources for bioinformaticians and scientists or anyone who is interested in knowing what kind of bioinformatics tools are out there. 
+
+## Need
+
+The need for this database arises from the fragmented and often overwhelming landscape of bioinformatics software and tools. Researchers spend a significant amount of time searching for tools that meet their specific needs, leading to inefficiencies and delays in research progress. A well-structured database that compiles and organizes bioinformatics tools can streamline this process by providing detailed information and categorization, making it easier for researchers to find tools based on functionality, programming languages, interface type, and other criteria. This will ultimately enhance productivity, facilitate comparative studies, and support researchers with their research. 
+
+## Context, scope, and perspective
+
+This database is primarily designed for any bioinformaticians in search of tools and software that would aid in their data analysis. However, the structure of the database is designed in a broad enough way that it could eventually be adapted to encompass software with use cases even outside of the biological field alone — whether it be tools used for chemistry analyses, general statistics, etc. The primary users include researcher scientists, graduate students, and lab techs working in bioinformatics. The database can also be useful for educators developing course material, as well as developers who are looking for gaps in current tools to inspire new tool creation.
+
+## User roles and use cases
+
+**Administrators and Contributors:**
+Administrators will be able to oversee and modify the database, whether it be by adding new tools, updating any new information related to those tools, or removing data such as broken links. Administrators will also be able to select users who wish to contribute to the database into contributor roles, which will provide them with the ability to also update the database with newer tools.
+
+**Viewers:**
+Viewers will comprise the majority of this database’s users, and will be able to browse the database but not modify it. The majority of viewers will likely include bioinformaticians and researchers seeking tools to use for specific computational tasks, and the database will aid them in finding tools available in formats that they are most comfortable with using (whether it be command-line tools, graphical user interface tools, web-based tools, or even coding modules) and any relevant documentation. Among the users may also be graduate students and educators in search of up-to-date bioinformatics resources and tools, as well as developers seeking to be updated on the existing tool landscape and looking for potential gaps in the field. 
+
+## Security and privacy
+
+The design of this database involves security and privacy considerations, including different user roles (such as administrator, contributor, and viewer roles as described above) with varying levels of access. To ensure data integrity, only administrators or registered contributors will be able to modify or add data within the database, and new data entries will be checked for accurate information and formatting. These considerations will ensure that data is not lost or corrupted, while still being able to keep the database up-to-date with the latest tools. The tool-related data itself that is stored within the database is not sensitive, as all of it is publicly accessible information in the first place. 
+
+# Database Design
+
+## Entity-relationship diagrams (ERD)
+
+### Chen Notation diagram:
+```{dot}
+//| fig-width: 100%
+graph ER {
+    overlap=false;
+    bgcolor=transparent;
+
+    // See: https://graphviz.org/docs/layouts/neato/
+    layout=neato  // Very useful for auto placing nodes.  Minimizes node/edge energy in system
+    scale=1.2     // changes size of shapes all at once
+
+    // Set defaults for nodes
+    node [fontname="Helvetica,Arial,sans-serif",fontsize=10] // Smaller font size, reduced node size
+
+    // Changing "mode" will move around the nodes
+    mode="KK"
+    //mode="sgd"
+    //mode="hier"
+
+    // Define nodes
+
+    // BOX: Entities
+    node [shape=box,style=filled,color="#f6bd60"];
+    "Tool"; "Category"; "Interface"; "Developer"; "Publication"; 
+
+    // ELLIPSE: Attributes
+    node [shape=ellipse,style=filled,color="#f7ede2"];
+    tool_id[label = <<u>tool_id</u>>]; tool_name; tool_last_updated; tool_program_lang; tool_repo; tool_doc;
+    cat_id[label = <<u>cat_id</u>>]; cat_name;
+    interface_id[label = <<u>interface_id</u>>]; interface_type;
+    dev_id[label = <<u>dev_id</u>>]; dev_name;
+    pub_DOI[label = <<u>pub_DOI</u>>]; pub_title; pub_first_author; pub_date; pub_journal; pub_citations;
+
+    // DIAMOND: Relationships
+    node [shape=diamond,style=filled,color="#9bc1bc",fillcolor="#9bc1bc"]; 
+    "associated with";
+
+    // Associative entity
+    node [shape=rectangle,style="diagonals, filled",color="",fillcolor="#9bc1bc"]; 
+    "develops"; "has"; "has ";
+
+    // Set defaults for edges then draw edges
+    edge [fontname="Helvetica,Arial,sans-serif",fontsize=10] // Reduced font size for edges
+
+    // Define edges
+    "Tool" -- tool_id;
+    "Tool" -- tool_name;
+    "Tool" -- tool_program_lang;
+    "Tool" -- tool_last_updated;
+    "Tool" -- tool_repo;
+    "Tool" -- tool_doc;
+    "Category" -- cat_id;
+    "Category" -- cat_name;
+    "Interface" -- interface_id;
+    "Interface" -- interface_type;
+    "Developer" -- dev_id;
+    "Developer" -- dev_name;
+    "Publication" -- pub_DOI;
+    "Publication" -- pub_title;
+    "Publication" -- pub_first_author;
+    "Publication" -- pub_date;
+    "Publication" -- pub_journal;
+    "Publication" -- pub_citations;
+    
+    "Developer" -- "develops" [label="n"];
+    "develops" -- "Tool" [label="n"];
+    "Publication" -- "associated with" [label="n"];
+    "associated with" -- "Tool" [label="1"];
+    "Tool" -- "has" [label="n"]
+    "has" -- "Category" [label="n"]
+    "Tool" -- "has " [label="n"]
+    "has " -- "Interface" [label="n"]
+}
+```
+
+
+### Crow's Foot Notation diagram:
+```{mermaid}
+erDiagram 
+%%{init: {'theme':'neutral'}}%%
+    
+    TOOL {
+        int tool_id PK
+        string tool_name
+        string tool_program_lang
+        date tool_last_updated
+        string tool_repo
+        string tool_doc
+    }
+
+    CATEGORY {
+        int cat_id PK
+        string cat_name
+    }
+
+    INTERFACE {
+        int interface_id PK
+        string interface_type
+    }
+
+    DEVELOPER {
+        int dev_id PK
+        string dev_name
+    }
+
+    PUBLICATION {
+        string pub_DOI PK
+        int tool_id FK
+        string pub_title
+        string pub_first_author
+        date pub_date
+        string pub_journal
+        int pub_citations
+    }
+
+    TOOL_CATEGORY {
+        int tool_id PK
+        int cat_id PK
+    }
+
+    TOOL_INTERFACE {
+        int tool_id PK
+        int interface_id PK
+    }
+
+    TOOL_DEVELOPER {
+        int tool_id PK
+        int dev_id PK
+    }
+
+    DEVELOPER ||--|{ TOOL_DEVELOPER : "develops"
+    TOOL_DEVELOPER }|--|| TOOL : "develops"
+
+    CATEGORY ||--|{ TOOL_CATEGORY : "has"
+    TOOL_CATEGORY }|--|| TOOL : "has"
+
+    INTERFACE ||--|{ TOOL_INTERFACE : "has"
+    TOOL_INTERFACE }|--|| TOOL : "has"
+
+    PUBLICATION }o--|| TOOL : "associated with"
+
+```
+
+Our database design consists of 5 main entities (Tool, Category, Interface, Developer, and Publication). Both the tool’s Category (i.e. its use case/category of bioinformatics) and Interface (e.g. a web-based interface, a GUI, a command-line interface, etc.) were originally attributes of Tool. However, as tools may potentially provide several interfaces (such as both a GUI and a command-line interface), and/or apply to multiple categories of bioinformatics, both Tool and Category were separated into entities of their own to avoid multi-valued attributes and aid in normalization. 
+
+Junction tables were created to resolve the several many-many relationships within the database, such as between a Tool and a Developer (a tool can potentially be created by many developers, and the same developer can potentially create many tools). The Developer entity was also originally linked to the Publication entity, as developers are typically the same people writing the official article associated with a certain tool, but this link was removed as it would potentially result in problematic circular references and overly complicate the database’s design. As a compromise, the publication’s first author was included as an additional attribute of Publication (primarily for easier citation purposes, as a user citing an article will at the very least need to know the first author — for instance, “Lastname et al.”). The first author listed on a paper may be the same person as one of the Developer(s) in most cases, but only one of said developers will be that first author.
+
+Incrementing integer IDs were chosen as the primary keys for 4 of the 5 main entities — with the exception of Publication, for which the primary key was chosen to be its “DOI”, or Digital Object Identifier. Online journal publications have an official “DOI” associated with them through which they can be accessed, in the format of “10.prefix/suffix” after “https://doi.org/” — wherein the “prefix” is a combination of 4+ numbers, and the "suffix" is a combination of characters & numbers. Every existing DOI is unique to its associated publication, and can thus already function as a primary key instead of adding a redundant integer ID.
+
+## Relational Schemas
+
+### Tool
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | tool_id (PK)      | Positive integer                                                             |
+| string    | tool_name         | Name of bioinformatics tool                                                  |
+| string    | tool_program_lang | Primary programming language the tool was written in                         |
+| date      | tool_last_updated | Full date of latest update to the tool                                       |
+| string    | tool_repo         | URL of the tool’s github repository |
+| string    | tool_doc          | URL of the tool’s primary documentation/manual                               |
+
+: {.striped .hover}
+
+### Category
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | cat_id (PK) | Positive integer |
+| string    | cat_name    | Category of bioinformatics tool use case (Gene-finding, DNA alignment, trimming, phylogenetic tree-building, statistical analysis, etc.) |
+
+: {.striped .hover}
+
+### Interface
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | interface_id (PK) | Positive integer                                                         |
+| string    | interface_type    | Type of tool’s interface (Web-based, CLI, GUI, Python module, R package, etc.) |
+
+: {.striped .hover}
+
+### Developer
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | dev_id (PK) | Positive integer         |
+| string    | dev_name    | Name of a main developer |
+
+: {.striped .hover}
+
+### Publication
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| string    | pub_DOI (PK)     | Unique DOI (digital object identifier) associated with the publication                        |
+| int       | tool_id (FK)     | Positive integer                                                                              |
+| string    | pub_title        | Title of the publication                                                                      |
+| string    | pub_first_author | Name of the first author of the publication (for citation purposes, e.g. “<LastName> et al.”) |
+| date      | pub_date         | Full date of the publication                                                                  |
+| string    | pub_journal      | Name of journal where the publication was published                                           |
+| int       | pub_citations    | Number of times the publication has been cited                                                |
+
+: {.striped .hover}
+
+### Tool_Category
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | tool_id (PK) | Positive integer |
+| int       | cat_id (PK)  | Positive integer |
+
+: {.striped .hover}
+
+### Tool_Interface
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | tool_id (PK) | Positive integer |
+| int       | interface_id (PK)  | Positive integer |
+
+: {.striped .hover}
+
+### Tool_Developer
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | tool_id (PK) | Positive integer |
+| int       | dev_id (PK)  | Positive integer |
+
+: {.striped .hover}
+
+*Primary keys should **not** be NULL for any entity.*
+
+## Functional dependencies and normalization
+All tables adhere to BCNF, and the database is designed in such a way that transitive dependencies with non-prime attributes are avoided (all attributes depend only on the key). Entity attributes were also named accordingly to make dependencies clear. Potential multi-valued attributes, such as a tool’s interface and bioinformatics category, were separated into their own entities, and junction tables were used to resolve many-many relationships. Below are the relations and functional dependencies for the five main entities:
+
+### Tool: 
+
+_**R**(<u>tool_id</u>, tool_name, tool_program_lang, tool_last_updated, tool_repo, tool_doc)_
+
+_**FD**(<u>tool_id</u> -> tool_name, tool_program_lang, tool_last_updated, tool_repo, tool_doc)_
+
+### Category:
+
+_**R**(<u>cat_id</u>, cat_name)_
+
+_**FD**(<u>cat_id</u> -> cat_name)_
+
+### Interface:
+
+_**R**(<u>interface_id</u>, interface_type)_
+
+_**FD**(<u>interface_id</u> -> interface_type)_
+
+### Developer:
+
+_**R**(<u>dev_id</u>, dev_name)_
+
+_**FD**(<u>dev_id</u> -> dev_name)_
+
+### Publication:
+
+_**R**(<u>pub_DOI</u>, pub_title, pub_first_author, pub_date, pub_journal, pub_citations)_
+
+_**FD**(<u>pub_DOI</u> -> pub_title, pub_first_author, pub_date, pub_journal, pub_citations)_
+
+## Specific Queries
+
+**1. Which tools are primarily written in Python?**
+
+$σ_{tool\_program\_lang="Python"}(Tool)$
+
+**2. Find the DOI of the publication that has the highest number of citations.**
+    
+$π_{pub\_DOI}(σ_{max(pub\_citations)}(Publication))$
+
+**3. What are the names of tools along with their documentation URLs, where the last update was in 2023?**
+
+$π_{tool\_name,tool\_doc}(σ_{tool\_last\_updated >= 1/1/23} ∧_{ tool\_last\_updated <= 12/31/23}(Tool))$
+
+**4. What are the names of tools that have not been updated in the last two years?**
+
+$π_{tool\_name}(σ_{tool\_last\_updated < (CURRENT\_DATE - 2 YEARS)}(Tool))$ 
+
+**5. List the names of all developers who developed the tool BWA.**
+
+  * If the tool's ID (PK) in the database is known by the user (simpler and faster query):
+
+$π_{dev\_name}((σ_{tool\_id=1}(Tool\_Developer))⨝_{dev\_id}Developer)$
+
+  * If searching by the tool's name as a string (will be the approach used in subsequent example queries unless stated otherwise):
+
+$π_{dev\_name}(((σ_{tool\_name=”BWA”}(Tool))⨝_{tool\_id}Tool\_Developer)⨝_{dev\_id}Developer)$
+    
+**6. What are the names of the tools that have no associated publications?**
+
+$π_{tool\_name}(σ_{pub\_DOI == NULL}(Tool⟕_{tool\_id}Publication))$
+
+**7. List the names of all tools that have a graphical user interface (GUI).**
+
+$π_{tool\_name}(((σ_{interface\_type=”GUI”}(Interface))⨝_{interface\_id}Tool\_Interface)⨝_{tool\_id}Tool)$
+
+**8. What are the names of tools that are available with a web-based interface OR a command-line interface?**
+
+$π_{tool\_name}(((σ_{interface\_type=”Web-based”} ∨_{interface\_type=“CLI”}(Interface))⨝_{interface\_id}Tool\_Interface)⨝_{tool\_id}Tool)$
+
+**9. What are the names of tools, along with their respective publication titles, that were last updated since 2022?**
+
+$π_{tool\_name, pub\_name}((σ_{tool\_last\_updated >= 1/1/2022}(Tool))⨝_{tool\_id}Publication)$
+
+**10. Find the names of all tools used for differential gene expression analysis that were last updated within the last 6 months.**
+
+$π_{tool\_name}(σ_{tool\_last\_updated >= (CURRENT\_DATE - 6 MONTHS)}((σ_{cat\_name=”Differential gene expression analysis”}(Category))⨝_{cat\_id}Tool\_Category)⨝_{tool\_id}Tool)$
+
+**11. What are the names of tools and their last updated dates that are maintained by the developer “Jasmine Dumas” (dev_id 3)?**
+
+$π_{tool\_name,tool\_last\_updated}((σ_{dev\_id=3}(Tool\_Developer))⨝_{tool\_id}Tool)$
+
+**12. What are the names of all tools used for phylogenetic tree inference?**
+
+$π_{tool\_name}(((σ_{cat\_name=”Phylogenetic tree inference”}(Category))⨝_{cat\_id}Tool\_Category)⨝_{tool\_id}Tool)$
+
+**13. Find the names of all tools that are available with both a GUI and CLI, and list their documentation URLs.**
+
+$π_{tool\_name,tool\_doc}(((σ_{interface\_type=”GUI”} ∧ _{interface\_type=”CLI”}(Interface))⨝_{interface\_id}Tool\_Interface)⨝_{tool\_id}Tool)$
+
+**14. Which publications have been cited more than 50 times and are associated with tools in the "Statistical Analysis" category?**
+
+$π_{pub\_DOI}(σ_{cat\_name=”Statistical Analysis”}(((σ_{pub\_citations > 50}(Publication))⨝_{tool\_id}Tool)⨝_{tool\_id}Tool\_Category)⨝_{cat\_id}Category)$
+
+**15. What are the names of developers who have developed more than three tools?**
+
+$π_{dev\_name}(σ_{tool\_count > 3}(γ_{dev\_id,count(tool\_id) -> tool\_count}(Developer⨝_{dev\_id}Tool\_Developer)))$
+
+**16. Find the names of tools written in R that have more than 50 citations in their associated publications.**
+
+$π_{tool\_name}(σ_{pub\_citation > 50}(σ_{tool\_program\_lang=”R”}(Tool))⨝_{tool\_id}Publication)$
+
+**17. Which developers have written tools in Java?**
+
+$π_{dev\_name}(((σ_{tool\_program\_lang=”Java”}(Tool))⨝_{tool\_id}Tool\_Developer)⨝_{dev\_id}Developer)$
+
+**18. What are the tools that support multiple sequence alignment and list their last updated dates?**
+
+$π_{tool\_name, tool\_last\_updated}(((σ_{cat\_name=”Multiple sequence alignment”}(Category))⨝_{cat\_id}Tool\_Category)⨝_{tool\_id}Tool)$
+
+**19. Which tools are associated with publications in the "Nature" journal that have over 20 citations?**
+
+$π_{tool\_name}((σ_{pub\_journal=”Nature”} ∧ _{pub\_citations > 20}(Publication))⨝_{tool\_id}Tool)$
+
+**20. What are the tools that are available as a Python module or R package, and have a GitHub repository?**
+
+$π_{tool\_name}(σ_{tool\_repo ≠ NULL}((σ_{interface\_type=”Python module”} ∨ _{interface\_type=”R package”}(Interface))⨝_{interface\_id}Tool\_Interface)⨝_{tool\_id}Tool)$
+
+## Sample Data
+
+The following are examples of **real,** current bioinformatics tools and how information about them would be stored in our database.
+
+### Tool
+
+| tool_id (PK)    | tool_name | tool_program_lang | tool_last_updated | tool_repo | tool_doc |
+| ---- | --- | --- | ---- | --- | --------- |
+| 1 | BWA | C | 4/14/2024 | https://github.com/lh3/bwa | https://bio-bwa.sourceforge.net/bwa.shtml |
+| 2 | Minimap2 | C | 3/27/2024 | https://github.com/lh3/minimap2 | https://lh3.github.io/minimap2/minimap2.html |
+| 3 | shinyGEO | R | 4/13/2021 | https://github.com/gdancik/shinyGEO | http://gdancik.github.io/shinyGEO/ |
+| 4 | RAxML-NG | C++ | 7/31/2024 | https://github.com/amkozlov/raxml-ng | https://github.com/amkozlov/raxml-ng/wiki |
+| 5 | Clustal Omega | C | 1/2/2018 | https://github.com/GSLBiotech/clustal-omega | http://www.clustal.org/omega/#Documentation |
+| 6 | adephylo | R | 10/6/2023 | https://github.com/adeverse/adephylo | https://cran.r-project.org/web/packages/adephylo/adephylo.pdf |
+| 7 | Java TreeView | Java | 9/30/2024 | https://sourceforge.net/p/jtreeview/git/ci/master/tree/ | https://jtreeview.sourceforge.net/manual.html |
+
+: {.striped .hover}
+
+### Category
+| cat_id (PK) | cat_name |
+| --- | ------ |
+| 1 | Read alignment |
+| 2 | Multiple sequence alignment |
+| 3 | Differential gene expression analysis |
+| 4 | Phylogenetic tree inference |
+| 5 | Phylogenetic analysis |
+| 6 | Microarray data visualization |
+
+: {.striped .hover}
+
+
+### Interface
+| interface_id (PK) | interface_type |
+| --- | ------- |
+| 1 | Web-based |
+| 2 | CLI |
+| 3 | GUI |
+| 4 | R package |
+| 5 | Python module |
+
+: {.striped .hover}
+
+### Developer
+
+| dev_id (PK) | dev_name|
+| --- | ------- |
+| 1 | Heng Li |
+| 2 | Richard Durbin |
+| 3 | Jasmine Dumas |
+| 4 | Michael Gargano |
+| 5 | Garrett Dancik |
+| 6 | Alexey Kozlov |
+| 7 | Alexandros Stamatakis |
+| 8 | Diego Darriba |
+| 9 | Tomas Flouri |
+| 10 | Des Higgins |
+| 11 | Fabian Sievers |
+| 12 | David Dineen |
+| 13 | Andreas Wilm |
+| 14 | Stéphane Dray | 
+| 15 | Thibaut Jombart |
+| 16 | Anders Ellern Bilgrau |
+| 17 | Aurélie Siberchicot |
+| 18 | Alok Saldanha |
+
+: {.striped .hover}
+
+### Publication 
+| pub_DOI (PK) | tool_id (FK) | pub_title&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | pub_first_author | pub_year | pub_journal | pub_citations |
+| --- | ------ | ----------------- | ------ | ------ | ------ | ------ |
+| 10.1093/bioinformatics/btp324 | 1 | Fast and accurate short read alignment with Burrows-Wheeler transform | Heng Li | 7/15/2009 | Bioinformatics | 40391 |
+| 10.1093/bioinformatics/btp698 | 1 | Fast and accurate long-read alignment with Burrows-Wheeler transform | Heng Li | 3/1/2010 | Bioinformatics | 10245 |
+| 10.48550/arXiv.1303.3997 | 1 | Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM | Heng Li | 5/26/2013 | q-bio.GN | 10797 |
+| 10.1093/bioinformatics/bty191 | 2 | Minimap2: pairwise alignment for nucleotide sequences | Heng Li | 9/15/2018 | Bioinformatics | 9265 |
+| 10.1093/bioinformatics/btab705 | 2 | New strategies to improve minimap2 alignment accuracy | Heng Li | 12/7/2021 | Bioinformatics |522 |
+| 10.1093/bioinformatics/btw519 | 3 | shinyGEO: a web-based application for analyzing gene expression omnibus datasets | Jasmine Dumas | 12/1/2016 | Bioinformatics | 67 |
+| 10.1093/bioinformatics/btz305 | 4 | RAxML-NG: a fast, scalable and user-friendly tool for maximum likelihood phylogenetic inference |  Alexey Kozlov | 11/1/2019 | Bioinformatics | 2758 |
+| 10.1038/msb.2011.75 | 5 | Fast, scalable generation of high-quality protein multiple sequence alignments using Clustal Omega | Fabian Sievers | 10/11/2011 | Molecular Systems Biology | 12976 |
+| 10.1002/pro.3290 | 5 | Clustal Omega for making accurate alignments of many protein sequences | Fabian Sievers | 9/7/2017 | Protein Science | 1413 |
+| 10.1093/bioinformatics/btq292 | 6 | adephylo: new tools for investigating the phylogenetic signal in biological traits | Thibaut Jombart | 8/1/2010 | Bioinformatics | 359 |
+| 10.1093/bioinformatics/bth349 | 7 | Java Treeview—extensible visualization of microarray data | Alok Saldanha | 11/1/2004 | Bioinformatics | 2707 |
+
+: {.striped .hover}
+
+### Tool_Category
+| tool_id (PK) | cat_id (PK) |
+| --- | --- |
+| 1 | 1 |
+| 2 | 1 |
+| 3 | 3 |
+| 4 | 4 |
+| 5 | 2 |
+| 6 | 5 |
+| 7 | 6 |
+
+: {.striped .hover}
+
+### Tool_Interface
+| tool_id (PK) | interface_ID (PK) |
+| --- | --- |
+| 1 | 2 |
+| 2 | 2 |
+| 3 | 1 | 
+| 4 | 2 |
+| 5 | 1 |
+| 5 | 2 |
+| 6 | 4 |
+| 7 | 3 | 
+
+: {.striped .hover}
+
+### Tool_Developer 
+| tool_id (PK) | dev_id (PK) |
+| --- | --- |
+| 1 | 1 |
+| 1 | 2 |
+| 2 | 1 |
+| 3 | 3 |
+| 3 | 4 |
+| 3 | 5 |
+| 4 | 6 |
+| 4 | 7 |
+| 4 | 8 |
+| 4 | 9 |
+| 5 | 10 |
+| 5 | 11 |
+| 5 | 12 |
+| 5 | 13 |
+| 6 | 14 |
+| 6 | 15 |
+| 6 | 16 |
+| 6 | 17 |
+| 7 | 18 |
+
+: {.striped .hover}
+
+## Project Management
+
+```{mermaid}
+gantt
+    title Bioinformatics Database Project Timeline
+    dateFormat YY-MM-DD
+    axisFormat %m/%y 
+    section Phase 1
+    BioTechs formation :24-08-25, 1d
+    Pitch video :24-08-25, 24-09-15
+    Design & Draft :24-09-15, 24-10-13
+    section Phase 2
+    Website implementation - Docker code: 24-10-13, 24-11-20
+    Database implementation report and video: 24-10-20, 24-12-09
+```

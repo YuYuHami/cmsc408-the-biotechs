@@ -1,0 +1,668 @@
+---
+title: CMSC 408/591 - Semester Project - Deliverable 12 
+author:
+  - name: "Mariam Topchyan"
+  - name: "Yousra Hamidou"
+  - name: "Danielle Coates"
+date: "2024-12-09"
+format:
+    html:
+        embed-resources: true
+        html-math-method: katex
+        theme: sandstone
+        code-fold: true
+        toc: true
+---
+### Overview
+
+Deliverable 12 represents the culmination of our semester-long project to design, implement, and deploy a functional database for bioinformatics tools. This submission includes:
+
+- A detailed report covering the database's design, implementation, and results.
+- Sample outputs demonstrating functionality.
+- A narrated video presentation documenting the project.
+
+### Links and Media
+
+- **GitHub Repository**: [GitHub Link](https://github.com/cmsc-vcu/cmsc408-fa2024-proj-the-biotechs)
+- **Project Video**: [Video Link](https://vcu.mediaspace.kaltura.com/media/CMSC+408+591+-+Deliverable+12/1_m9uwemsk)
+
+The following video provides a narrated summary of our project, including the database design, web interface demonstration, and reflections:
+
+::: {.embed-video}
+<iframe src="https://cdnapisec.kaltura.com/p/1888231/sp/188823100/embedIframeJs/uiconf_id/28242191/partner_id/1888231?iframeembed=true&playerId=kplayer&entry_id=1_m9uwemsk&flashvars[streamerType]=auto" width="800" height="450" allowfullscreen webkitallowfullscreen mozAllowFullScreen allow="autoplay *; fullscreen *; encrypted-media *" frameborder="0"></iframe>
+:::
+
+# Problem Description
+
+### Context and Scope
+
+Bioinformatics integrates biology, computer science, and data analysis to address complex biological questions. With the rapid proliferation of bioinformatics tools, researchers face challenges in locating, comparing, and choosing appropriate software for their needs.
+
+### Problem
+
+Researchers waste significant time searching for scattered and incompatible tools. Current databases lack centralization and adequate filtering capabilities for bioinformatics-specific workflows. 
+
+For instance, there are many sequence alignment tools available (such as BLAST, Bowtie, BWA, minimap2, etc.), but finding and selecting one best suited for specific research purposes can be time-consuming. Having centralized information about tools such as their use cases, available interfaces, and associated documentation and publications would aid in the search for a suitable bioinformatics tool.
+
+### Objective
+
+This project aims to:
+
+1. Consolidate various bioinformatics tools across various use cases and categories into a single, accessible database.
+2. Include metadata like programming languages, interface type, and associated publications.
+3. Provide intuitive access to the database through a web interface, supporting CRUD operations and pre-defined queries.
+
+# Users
+
+## User Roles and Use Cases
+
+This database is primarily designed for researchers and bioinformaticians, who need to quickly find tools suitable for specific bioinformatics tasks, such as DNA alignment or differential gene expression analysis. 
+
+Some **example use cases** of this database include: 
+
+   - Searching for tools written in a certain programming language, or tools available with a specific interface type.
+   - Accessing repositories, documentation/manuals, and publications associated with a tool.
+   - Running predefined queries to find tools updated recently or with certain features.
+
+## Security and Privacy
+
+While the current implementation allows all users to perform CRUD operations, future enhancements would include:
+
+   - **A user login system and user roles**, restricting access to updating/deleting data in the database unless the user's role permits it (such as an administrator role).
+   - **Further input validation** to prevent SQL injection and ensure data integrity.
+   - **Additional privacy measures** to securely handle user credentials when implemented. Otherwise, the database itself contains publicly available information, wherein privacy concerns are minimal.
+
+# Database Design
+
+## Entity-relationship diagrams (ERD)
+
+### Chen Notation diagram:
+
+The Chen notation diagram below provides an overview of the conceptual structure of the database.
+
+```{dot}
+//| fig-width: 100%
+graph ER {
+    overlap=false;
+    bgcolor=transparent;
+
+    // See: https://graphviz.org/docs/layouts/neato/
+    layout=neato  // Very useful for auto placing nodes.  Minimizes node/edge energy in system
+    scale=1.2     // changes size of shapes all at once
+
+    // Set defaults for nodes
+    node [fontname="Helvetica,Arial,sans-serif",fontsize=10] // Smaller font size, reduced node size
+
+    // Changing "mode" will move around the nodes
+    mode="KK";
+    //mode="sgd"
+    //mode="hier"
+
+    // Define nodes
+
+    // BOX: Entities
+    node [shape=box,style=filled,color="#f6bd60"];
+    "Tool"; "Category"; "Interface"; "Developer"; "Publication"; 
+
+    // ELLIPSE: Attributes
+    node [shape=ellipse,style=filled,color="#f7ede2"];
+    tool_id[label = <<u>id</u>>]; 
+    tool_name[label = "name"];
+    tool_last_updated[label = "last_updated"]; 
+    tool_program_lang[label = "program_lang"];
+    tool_repo[label = "repo"];
+    tool_doc[label = "doc"];
+    cat_id[label = <<u>id</u>>]; 
+    cat_name[label = "name"];
+    interface_id[label = <<u>id</u>>]; 
+    interface_type[label = "type"];
+    dev_id[label = <<u>id</u>>]; 
+    dev_name[label = "name"];
+    pub_DOI[label = <<u>DOI</u>>]; 
+    pub_title[label = "title"]; 
+    pub_first_author[label = "first_author"]; 
+    pub_date[label = "date"]; 
+    pub_journal[label = "journal"]; 
+    pub_citations[label = "citations"];
+
+    // DIAMOND: Relationships
+    node [shape=diamond,style=filled,color="#9bc1bc",fillcolor="#9bc1bc"]; 
+    "associated with";
+
+    // Associative entity
+    node [shape=rectangle,style="diagonals, filled",color="",fillcolor="#9bc1bc"]; 
+    "develops"; "has"; "has ";
+
+    // Set defaults for edges then draw edges
+    edge [fontname="Helvetica,Arial,sans-serif",fontsize=10] // Reduced font size for edges
+
+    // Define edges
+    "Tool" -- tool_id;
+    "Tool" -- tool_name;
+    "Tool" -- tool_program_lang;
+    "Tool" -- tool_last_updated;
+    "Tool" -- tool_repo;
+    "Tool" -- tool_doc;
+    "Category" -- cat_id;
+    "Category" -- cat_name;
+    "Interface" -- interface_id;
+    "Interface" -- interface_type;
+    "Developer" -- dev_id;
+    "Developer" -- dev_name;
+    "Publication" -- pub_DOI;
+    "Publication" -- pub_title;
+    "Publication" -- pub_first_author;
+    "Publication" -- pub_date;
+    "Publication" -- pub_journal;
+    "Publication" -- pub_citations;
+    
+    "Developer" -- "develops" [label="n"];
+    "develops" -- "Tool" [label="n"];
+    "Publication" -- "associated with" [label="n"];
+    "associated with" -- "Tool" [label="1"];
+    "Tool" -- "has" [label="n"]
+    "has" -- "Category" [label="n"]
+    "Tool" -- "has " [label="n"]
+    "has " -- "Interface" [label="n"]
+}
+```
+
+
+### Crow's Foot Notation diagram:
+
+The Crow's Foot diagram below provides a more detailed view of the database's structure,  cardinality and relationships between entities, and each entity's attributes.
+
+```{mermaid}
+erDiagram 
+%%{init: {'theme':'neutral'}}%%
+    
+    TOOL {
+        int id PK
+        varchar name
+        varchar program_lang
+        date last_updated
+        varchar repo
+        varchar doc
+    }
+
+    CATEGORY {
+        int id PK
+        varchar name
+    }
+
+    INTERFACE {
+        int id PK
+        varchar type
+    }
+
+    DEVELOPER {
+        int id PK
+        varchar name
+    }
+
+    PUBLICATION {
+        varchar DOI PK
+        int tool_id FK
+        varchar title
+        varchar first_author
+        date date
+        varchar journal
+        int citations
+    }
+
+    TOOL_CATEGORY {
+        int id PK
+        int tool_id FK
+        int cat_id FK
+    }
+
+    TOOL_INTERFACE {
+        int id PK
+        int tool_id FK
+        int interface_id FK
+    }
+
+    TOOL_DEVELOPER {
+        int id PK
+        int tool_id FK
+        int dev_id FK
+    }
+
+    DEVELOPER ||--|{ TOOL_DEVELOPER : "develops"
+    TOOL_DEVELOPER }|--|| TOOL : "develops"
+
+    CATEGORY ||--|{ TOOL_CATEGORY : "has"
+    TOOL_CATEGORY }|--|| TOOL : "has"
+
+    INTERFACE ||--|{ TOOL_INTERFACE : "has"
+    TOOL_INTERFACE }|--|| TOOL : "has"
+
+    PUBLICATION }o--|| TOOL : "associated with"
+
+```
+
+Our database design includes five primary entities:
+
+- `Tool`
+- `Category`
+- `Interface`
+- `Developer`
+- `Publication`
+
+To handle the many-to-many relationships between entities in our database (for example, a tool being created by multiple developers or a developer working on multiple tools), we implemented the following junction tables:
+
+- `Tool_Category`
+- `Tool_Interface`
+- `Tool_Developer`
+
+#### Primary Keys
+
+For most entities, we used incrementing integer IDs as primary keys. The only exception is the `Publication` entity, which uses the publication's `DOI` (Digital Object Identifier) as its primary key. 
+
+Each DOI is unique to its associated publication, following the format `10.prefix/suffix`, and eliminates the need for a redundant integer ID while also providing users with direct access to the publication. 
+
+## Relational Schemas
+
+This section defines the structure of the database entities and their attributes, outlining their respective data types and domains.
+
+Each table has a unique primary key. Foreign keys (such as `tool_id`) are also implemented throughout both the junction tables and the `Publication` table, marking the specific relationships between entities to maintain database integrity.
+
+### Tool
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int          | id (PK)      | Positive integer                                                             |
+| varchar(50)  | name         | Name of bioinformatics tool                                                  |
+| varchar(50)  | program_lang | Primary programming language the tool was written in                         |
+| date         | last_updated | Full date of latest update to the tool                                       |
+| varchar(255) | repo         | URL of the tool’s github repository                                          |
+| varchar(255) | doc          | URL of the tool’s primary documentation/manual                               |
+
+: {.striped .hover}
+
+### Category
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int          | id (PK) | Positive integer |
+| varchar(100) | name    | Category of bioinformatics tool use case (Gene-finding, DNA alignment, trimming, phylogenetic tree-building, statistical analysis, etc.) |
+
+: {.striped .hover}
+
+### Interface
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int         | id (PK) | Positive integer                                                               |
+| varchar(50) | type    | Type of tool’s interface (Web-based, CLI, GUI, Python module, R package, etc.) |
+
+: {.striped .hover}
+
+### Developer
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int          | id (PK) | Positive integer         |
+| varchar(100) | name    | Name of a main developer |
+
+: {.striped .hover}
+
+### Publication
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| varchar(50)     | DOI (PK)     | Unique DOI (digital object identifier) associated with the publication                        |
+| int             | tool_id (FK) | Positive integer                                                                              |
+| varchar(255)    | title        | Title of the publication                                                                      |
+| varchar(100)    | first_author | Name of the first author of the publication (for citation purposes, e.g. “<LastName> et al.”) |
+| date            | date         | Full date of the publication                                                                  |
+| varchar(100)    | journal      | Name of journal where the publication was published                                           |
+| int             | citations    | Number of times the publication has been cited                                                |
+
+: {.striped .hover}
+
+### Tool_Category
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | id (PK) | Positive integer |
+| int       | tool_id (FK) | Positive integer |
+| int       | cat_id (FK)  | Positive integer |
+
+: {.striped .hover}
+
+### Tool_Interface
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | id (PK) | Positive integer |
+| int       | tool_id (FK) | Positive integer |
+| int       | interface_id (FK)  | Positive integer |
+
+: {.striped .hover}
+
+### Tool_Developer
+
+| Data type | Attribute | Domain |
+| --- | --- | --------- |
+| int       | id (PK) | Positive integer |
+| int       | tool_id (FK) | Positive integer |
+| int       | dev_id (FK)  | Positive integer |
+
+: {.striped .hover}
+
+## Functional Dependencies and Normalization
+
+To ensure data integrity and minimize redundancy, all tables adhere to **Boyce-Codd Normal Form (BCNF)**, ensuring that every determinant is a candidate key, and that no transitive dependencies exist among non-prime attributes. 
+
+Potential multi-valued attributes, such as a tool’s interface and bioinformatics category, were separated into their own entities, and junction tables were used to resolve many-many relationships. 
+
+Below are the relations and functional dependencies for the five main entities:
+
+### Tool: 
+
+_**R**(<u>id</u>, name, program_lang, last_updated, repo, doc)_
+
+_**FD**(<u>id</u> -> name, program_lang, last_updated, repo, doc)_
+
+### Category:
+
+_**R**(<u>id</u>, name)_
+
+_**FD**(<u>id</u> -> name)_
+
+### Interface:
+
+_**R**(<u>id</u>,type)_
+
+_**FD**(<u>id</u> -> type)_
+
+### Developer:
+
+_**R**(<u>id</u>, name)_
+
+_**FD**(<u>id</u> -> name)_
+
+### Publication:
+
+_**R**(<u>DOI</u>, title, first_author, date, journal, citations)_
+
+_**FD**(<u>DOI</u> -> title, first_author, date, journal, citations)_
+
+## Database Integrity
+
+The database ensures data consistency and integrity by implementing:
+
+- **Primary keys** to uniquely identify each row in each table.
+- **Foreign keys** to mark relationships between tables.
+- **Attribute constraints**, such as `NOT NULL` and `UNIQUE`, to ensure data validity.
+- **Referential integrity** via cascading updates/deletes.
+
+## Data and the DDL
+
+The database was implemented and populated with sample data through the use of a DDL script, which is available in our [GitHub repository](https://github.com/cmsc-vcu/cmsc408-fa2024-proj-the-biotechs) as [my-ddl.sql](https://github.com/cmsc-vcu/cmsc408-fa2024-proj-the-biotechs/blob/main/db/my-ddl.sql). 
+
+The script `DROP`s all existing tables in the database before creating or updating any data subsequently, ensuring a clean slate when running the script. 
+
+Each table is created via `CREATE TABLE`, and each table is populated with example data of real bioinformatics tools via `INSERT` statements. All constraints, primary keys, and foreign keys are specified in the process.
+
+The code can also be viewed by clicking on the drop-down text below:
+<details><summary><u>**Show DDL**</u></summary>
+
+```{code}
+# Drops all tables. This section should be amended if new tables are added.
+SET FOREIGN_KEY_CHECKS=0;
+DROP TABLE IF EXISTS tool;
+DROP TABLE IF EXISTS category;
+DROP TABLE IF EXISTS interface;
+DROP TABLE IF EXISTS developer;
+DROP TABLE IF EXISTS publication;
+DROP TABLE IF EXISTS tool_category;
+DROP TABLE IF EXISTS tool_publication;
+DROP TABLE IF EXISTS tool_interface;
+DROP TABLE IF EXISTS tool_developer;
+SET FOREIGN_KEY_CHECKS=1;
+
+# Section 1, create Tool table
+CREATE TABLE tool (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    program_lang VARCHAR(50) NOT NULL,
+    last_updated DATE NOT NULL,
+    repo VARCHAR(255) NOT NULL,
+    doc VARCHAR(255) NOT NULL
+);
+
+# Insert data in table
+INSERT INTO tool (name, program_lang, last_updated, repo, doc) VALUES
+('BWA', 'C', '2024-04-14', 'https://github.com/lh3/bwa', 'https://bio-bwa.sourceforge.net/bwa.shtml'),
+('Minimap2', 'C', '2024-03-27', 'https://github.com/lh3/minimap2', 'https://lh3.github.io/minimap2/minimap2.html'),
+('shinyGEO', 'R', '2021-04-13', 'https://github.com/gdancik/shinyGEO', 'http://gdancik.github.io/shinyGEO/'),
+('RAxML-NG', 'C++', '2024-07-31', 'https://github.com/amkozlov/raxml-ng', 'https://github.com/amkozlov/raxml-ng/wiki'),
+('Clustal Omega', 'C', '2018-01-02', 'https://github.com/GSLBiotech/clustal-omega', 'http://www.clustal.org/omega/#Documentation'),
+('adephylo', 'R', '2023-10-06', 'https://github.com/adeverse/adephylo', 'https://cran.r-project.org/web/packages/adephylo/adephylo.pdf'),
+('Java TreeView', 'Java', '2024-09-30', 'https://sourceforge.net/p/jtreeview/git/ci/master/tree/', 'https://jtreeview.sourceforge.net/manual.html');
+
+# Secton 2
+CREATE TABLE category (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL
+);
+
+-- Sample data insertion
+INSERT INTO category (name) VALUES
+('Read alignment'),
+('Multiple sequence alignment'),
+('Differential gene expression analysis'),
+('Phylogenetic tree inference'),
+('Phylogenetic analysis'),
+('Microarray data visualization');
+
+# Section 3
+CREATE TABLE interface (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    type VARCHAR(50) NOT NULL
+);
+
+-- Sample data insertion
+INSERT INTO interface (type) VALUES
+('Web-based'),
+('CLI'),
+('GUI'),
+('R package'),
+('Python module');
+
+# Section 4
+CREATE TABLE developer (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL
+);
+
+-- Sample data insertion
+INSERT INTO developer (name) VALUES
+('Heng Li'),
+('Richard Durbin'),
+('Jasmine Dumas'),
+('Michael Gargano'),
+('Garrett Dancik'),
+('Alexey Kozlov'),
+('Alexandros Stamatakis'),
+('Diego Darriba'),
+('Tomas Flouri'),
+('Des Higgins'),
+('Fabian Sievers'),
+('David Dineen'),
+('Andreas Wilm'),
+('Stephane Dray'),
+('Thibaut Jombart'),
+('Anders Ellern Bilgrau'),
+('Aurelie Siberchicot'),
+('Alok Saldanha');
+
+# Section 5
+CREATE TABLE publication (
+    DOI VARCHAR(50) PRIMARY KEY,
+    tool_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    first_author VARCHAR(100) NOT NULL,
+    year DATE NOT NULL,
+    journal VARCHAR(100) NOT NULL,
+    citations INT NOT NULL,
+    FOREIGN KEY (tool_id) REFERENCES tool(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Sample data insertion
+INSERT INTO publication (DOI, tool_id, title, first_author, year, journal, citations) VALUES
+('10.1093/bioinformatics/btp324', 1, 'Fast and accurate short read alignment with Burrows-Wheeler transform', 'Heng Li', '2009-07-15', 'Bioinformatics', 40391),
+('10.1093/bioinformatics/btp698', 1, 'Fast and accurate long-read alignment with Burrows-Wheeler transform', 'Heng Li', '2010-03-01', 'Bioinformatics', 10245),
+('10.48550/arXiv.1303.3997', 1, 'Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM', 'Heng Li', '2013-05-26', 'q-bio.GN', 10797),
+('10.1093/bioinformatics/bty191', 2, 'Minimap2: pairwise alignment for nucleotide sequences', 'Heng Li', '2018-09-15', 'Bioinformatics', 9265),
+('10.1093/bioinformatics/btab705', 2, 'New strategies to improve minimap2 alignment accuracy', 'Heng Li', '2021-12-07', 'Bioinformatics', 522),
+('10.1093/bioinformatics/btw519', 3, 'shinyGEO: a web-based application for analyzing gene expression omnibus datasets', 'Jasmine Dumas', '2016-12-01', 'Bioinformatics', 67),
+('10.1093/bioinformatics/btz305', 4, 'RAxML-NG: a fast, scalable and user-friendly tool for maximum likelihood phylogenetic inference', 'Alexey Kozlov', '2019-11-01', 'Bioinformatics', 2758),
+('10.1038/msb.2011.75', 5, 'Fast, scalable generation of high-quality protein multiple sequence alignments using Clustal Omega', 'Fabian Sievers', '2011-10-11', 'Molecular Systems Biology', 12976),
+('10.1002/pro.3290', 5, 'Clustal Omega for making accurate alignments of many protein sequences', 'Fabian Sievers', '2017-09-07', 'Protein Science', 1413),
+('10.1093/bioinformatics/btq292', 6, 'adephylo: new tools for investigating the phylogenetic signal in biological traits', 'Thibaut Jombart', '2010-08-01', 'Bioinformatics', 359),
+('10.1093/bioinformatics/bth349', 7, 'Java Treeview - extensible visualization of microarray data', 'Alok Saldanha', '2004-11-01', 'Bioinformatics', 2707);
+
+# JUNCTION TABLES
+#Section 6
+
+CREATE TABLE tool_category (
+    id INT NOT NULL AUTO_INCREMENT,
+    tool_id INT NOT NULL,
+    cat_id INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (tool_id) REFERENCES tool(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (cat_id) REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Sample data insertion
+INSERT INTO tool_category (tool_id, cat_id) VALUES
+(1, 1),
+(2, 1),
+(3, 3),
+(4, 4),
+(5, 2),
+(6, 5),
+(7, 6);
+
+# Section 7
+CREATE TABLE tool_interface (
+    id INT NOT NULL AUTO_INCREMENT,
+    tool_id INT NOT NULL,
+    interface_id INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (tool_id) REFERENCES tool(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (interface_id) REFERENCES interface(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Sample data insertion
+INSERT INTO tool_interface (tool_id, interface_id) VALUES
+(1, 2),
+(2, 2),
+(3, 1),
+(4, 2),
+(5, 1),
+(5, 2),
+(6, 4),
+(7, 3);
+
+# Section 8
+CREATE TABLE tool_developer (
+    id INT NOT NULL AUTO_INCREMENT,
+    tool_id INT NOT NULL,
+    dev_id INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (tool_id) REFERENCES tool(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (dev_id) REFERENCES developer(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- Sample data insertion
+INSERT INTO tool_developer (tool_id, dev_id) VALUES
+(1, 1),
+(1, 2),
+(2, 1),
+(3, 3),
+(3, 4),
+(3, 5),
+(4, 6),
+(4, 7),
+(4, 8),
+(4, 9),
+(5, 10),
+(5, 11),
+(5, 12),
+(5, 13),
+(6, 14),
+(6, 15),
+(6, 16),
+(6, 17),
+(7, 18);
+```
+
+</details>
+
+# Web Application
+
+## Overview
+
+The web application is the front-end component of the database, allowing user-friendly interaction with its contents. It allows users to view the data stored within each table, as well as perform the following **CRUD operations** on each table:
+
+  - **Create** - adding new records
+  - **Retrieve** - viewing existing records
+  - **Update** - modifying existing records
+  - **Delete** - removing records
+
+Additionally, users can view and run 20 pre-defined queries to retrieve various information from the data.
+
+## Implementation details 
+
+The application was built with a combination of [**PHP**](https://www.php.net/) with the [**MySQLi**](https://www.php.net/manual/en/book.mysqli.php) extension for the implementation of CRUD operations, as well as **HTML** and **CSS** for the interface design. 
+
+The [**Bootstrap CSS framework**](https://getbootstrap.com/docs/5.3/getting-started/introduction/) was additionally used for extra styling, particularly for displaying the contents of each table. 
+
+[**Docker**](https://www.docker.com/) was used to locally host the web application by running `docker-compose up -d` in the project root.
+
+# Screenshots
+
+Displayed below are the key screens of the web application.
+
+## Homepage _(index.php)_
+![The homepage lists all tables in the database, and each table can be clicked to view its contents. Example queries can be accessed via the link at the bottom.](../screenshots/index.png){fig-align="center" fig-alt="Screenshot of the homepage."}
+
+## Viewing table contents _(show-table.php)_
+![Clicking on a table displays its contents. Users can edit or delete individual rows, or add a new row using a form at the bottom of the page.](../screenshots/show-table.png){fig-align="center" fig-alt="Screenshot of table contents."}
+
+## List of example queries _(reports.php)_
+![Users can view and select from 20 predefined queries to retrieve various information from the database.](../screenshots/reports.png){fig-align="center" fig-alt="Screenshot of example queries."}
+
+## Query results _(show-reports.php)_
+![From this page, users can navigate back to the list of example queries, or back to the homepage. Users can also open a dropdown section, which displays the SQL query that was used to retrieve the table (see below)](../screenshots/show-query.png){fig-align="center" fig-alt="Screenshot of query results."}
+
+## Query results + SQL query _(show-reports.php)_
+![Users can view the SQL query that generated the results via the dropdown section, providing transparency and allowing users to understand the query logic.](../screenshots/show-query2.png){fig-align="center" fig-alt="Screenshot of query results with SQL displayed."}
+
+# Future Considerations
+
+The current implementation of the database and web application lays a strong foundation, but there are several enhancements and expansions that could be pursued in future iterations, such as:
+
+1. **Authentication and role-based access**, allowing for administrators to have full control over the database, contributors to add or update records, and viewers to browse the database.
+
+2. **Advanced filtering options** that would allow users to filter data (such as by date, programming language, etc.) and more easily browse the database beyond the pre-defined queries.
+
+3. **Integration with external resources** such as PubMed for data fetching, allowing for more automated data collection.
+
+4. **Mobile compatibility** for better accessibility, allowing users to view the database on their preferred device.
+
+5. **Community contributions**, allowing user submissions to grow the database over time.
+
+# Reflections on the Overall Project
+
+We successfully designed and implemented a functional database of bioinformatics tools, implementing all appropriate constraints to ensure database integrity. There were only minimal changes to our initial planned design -- such as adding a non-composite primary key for each junction table, and renaming some attributes.
+
+We also successfully implemented a responsive web interface that fully supports CRUD operations for each table in the database, and has example queries to explore the information stored within. There was a technical learning curve to overcome, as we were previously not well acquainted with PHP programming. A particular challenge we faced whilst coding the interface was finding a balance between dynamic programming to avoid repetitive code vs. accurately handling different data types (such as text strings vs. date types), and we did so to the best of our abilities.
+
+Due to this learning curve, as well as time constraints, the implementation still has room for improvement -- such as implementing more input validation and protection against SQL injections. Given more time, we would also implement authentification features, as per our original plans. 
+
+We worked effectively as a team, leveraging each team member's strengths to complete the project on time. We thoroughly planned for each phase throughout the project, and found that our ER diagrams and relational schemas were very helpful in streamlining our process. We learned the importance of planning and communication, meeting weekly to delegate tasks, and kept in regular contact to ensure steady progress of the project. Overall, we are satisfied with our final result, and have learned many practical skills in database design, SQL, PHP coding, and application development in the process -- skills that we will now be able to apply to future projects. 
