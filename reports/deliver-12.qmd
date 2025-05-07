@@ -1,9 +1,9 @@
 ---
 title: CMSC 408/591 - Semester Project - Deliverable 12 
 author:
-  - name: "Mariam Topchyan"
-  - name: "Yousra Hamidou"
-  - name: "Danielle Coates"
+  - name: "Yousra H"
+  - name: "Mariam T"
+  - name: "Danielle C"
 date: "2024-12-09"
 format:
     html:

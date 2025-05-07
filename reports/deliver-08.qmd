@@ -1,7 +1,7 @@
 ---
 title: CMSC 408/591 - Bioinformatics Tool Database Project 
 author:
-    - name: Mariam Topchyan, Yousra Hamidou, Danielle Coates
+    - name: Yousra H, Mariam T, Danielle C
 
 format:
     html:

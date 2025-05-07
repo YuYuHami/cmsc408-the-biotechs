@@ -1,12 +1,14 @@
 # Welcome to the CMSC 408/591 Database Project repository
 
-<div align="center"><b>Team members of the BioTechs:</b> Mariam Topchyan, Danielle Coates, Yousra Hamidou </div>
+<div align="center"><b>Team members of the BioTechs:</b> Yousra H, Mariam T, Danielle C </div>
 
 ## Table of contents
 
-- [Project description](#-project-description)
-- [Video links](#video-links)
-- [File locations](#file-locations)
+- [Welcome to the CMSC 408/591 Database Project repository](#welcome-to-the-cmsc-408591-database-project-repository)
+  - [Table of contents](#table-of-contents)
+  - [Project description](#project-description)
+  - [Video links](#video-links)
+  - [File locations](#file-locations)
 
 ## Project description
 
